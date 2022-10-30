@@ -5,8 +5,6 @@ const DEFAULT_FLIGHT_NUMBER = 100;
 
 const launches = new Map();
 
-let latestFlightNumber = 100;
-
 const launch = {
   flightNumber: 100,
   mission: 'Nombre mision',
@@ -27,7 +25,7 @@ function existsLaunchWithId(launchId) {
 
 async function getLatestFlightNumber() {
   // .sort() ordena de menor a mayor, por eso añadimos el '-' y cojemos el primero
-  const latestLaunch = await launchesDatabase.findOne().sort('-fligthNumber');
+  const latestLaunch = await launchesDatabase.findOne({}).sort('-flightNumber');
 
   if (!latestLaunch) {
     return DEFAULT_FLIGHT_NUMBER;
@@ -58,17 +56,17 @@ async function saveLaunch(launch) {
   );
 }
 
-function addNewLaunch(launch) {
-  latestFlightNumber++;
-  launches.set(
-    latestFlightNumber,
-    Object.assign(launch, {
-      flightNumber: latestFlightNumber,
-      customer: ['Agencia Espacial de Calvia', 'UE Space Force'],
-      upcoming: true,
-      success: true,
-    })
-  );
+async function scheduleNewLaunch(launch) {
+  const newFlightNumber = (await getLatestFlightNumber()) + 1;
+
+  const newLaunch = Object.assign(launch, {
+    success: true,
+    upcoming: true,
+    customers: ['Ajuntament de Calvia', 'NASA'],
+    flightNumber: newFlightNumber,
+  });
+
+  await saveLaunch(newLaunch);
 }
 
 function abortLaunchById(launchId) {
@@ -81,6 +79,6 @@ function abortLaunchById(launchId) {
 module.exports = {
   existsLaunchWithId,
   getAllLaunches,
-  addNewLaunch,
+  scheduleNewLaunch,
   abortLaunchById,
 };
