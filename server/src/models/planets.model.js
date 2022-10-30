@@ -40,7 +40,14 @@ function loadPlanetsData() {
 }
 
 async function getAllPlanets() {
-  return await planets.find({});
+  return await planets.find(
+    {},
+    // Excluimos de la respuesta con "0" el id y __v
+    {
+      _id: 0,
+      __v: 0,
+    }
+  );
 }
 
 async function savePlanet(planet) {
